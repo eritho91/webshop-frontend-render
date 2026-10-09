@@ -4,14 +4,27 @@ import { getProducts } from "../service/productService";
 import ProductCard from "../components/ProductCard";
 import Cart from "../components/Cart";
 
-function ProductPage() {
-  console.log("ProductPage körs");
+type ProductPageProps = {
+  cartItems: CartItem[];
+  onAddToCart: (product: Product) => void;
+  onIncreaseQuantity: (productId: number) => void;
+  onDecreaseQuantity: (productId: number) => void;
+  onCheckout: () => Promise<void>;
+};
+
+function ProductPage({
+  cartItems,
+  onAddToCart,
+  onIncreaseQuantity,
+  onDecreaseQuantity,
+  onCheckout,
+
+}: ProductPageProps) {
 
   const [products, setProducts] = useState<Product[]>([]);
   const [error, setError] = useState<string | null>(null);
   //innehåller vagnens produkter + för att ändra. innehåller en lista av items
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  //bestämmer om kundvagn visas
+
   const [showCart, setShowCart] = useState(false);
 
   useEffect(() => {
@@ -27,22 +40,6 @@ function ProductPage() {
     loadProducts();
   }, []);
 
-  function addToCart(product: Product) {
-    const cartItem: CartItem = {
-      ...product, //kopierar all produktinfo
-      quantity: 1,
-    };
-
-    //tar alla produkter som finns i kundvagn och lägger till den nya sist
-    setCartItems((currentItems) => [...currentItems, cartItem]);
-
-    //alert för bekräftelse av senaste tillägg i kundvagn
-    alert(`${product.name} har lagts i kundvagnen`);
-  }
-
-  //!showCart byter till det motsatta, så om cart är false så ska den bli true on click
-  //showCart ? = om cart visas skrivs dölj annars visa kundvagn
-  //showCart && = Om showcart är true rendera cart och produkterna från cart
   return (
     <main className="product-page">
       <div className="product-page-header">
@@ -57,13 +54,25 @@ function ProductPage() {
           {showCart ? "Dölj kundvagn" : "Visa kundvagn"}
         </button>
       </div>
-      {showCart && <Cart items={cartItems} />}
+      
+      {showCart && (
+        <Cart 
+          items={cartItems}
+          onIncreaseQuantity={onIncreaseQuantity}
+          onDecreaseQuantity={onDecreaseQuantity}
+          onCheckout={onCheckout}
+          />
+      )}
 
       {error && <p>{error}</p>}
 
       <div className="product-grid">
         {products.map((product) => (
-          <ProductCard key={product.id} product={product} onAdd={addToCart} />
+          <ProductCard 
+          key={product.id} 
+          product={product} 
+          onAdd={onAddToCart} 
+          />
         ))}
       </div>
     </main>
