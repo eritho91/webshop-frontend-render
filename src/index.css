@@ -242,6 +242,16 @@ body {
   gap: 16px;
 }
 
+.product-card.sold-out {
+  opacity: 0.5;
+}
+
+.product-card.sold-out .primary-button {
+  background-color: #b0b0b0;
+  color: #555;
+  cursor: not-allowed;
+}
+
 .product-image {
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -300,6 +310,10 @@ body {
   margin: 0;
   padding: 16px 0;
   border-top: 1px solid #d9cec7;
+}
+
+.cart-item button:disabled {
+  opacity: 0.5;
 }
 
 .no-products {

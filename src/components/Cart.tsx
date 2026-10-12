@@ -11,7 +11,7 @@ type CartProps = {
 //{items} så att listan kan användas
 //p taggen går igenom kundvagnen,visar produktsnamn
 //key har id och index för react vill ha unikt key värde, ändras i FE-16
-function Cart({ items, onCheckout }: CartProps) {
+function Cart({ items, onIncrease, onDecrease, onCheckout }: CartProps) {
   const totalPrice = items.reduce(
     (total, item) => total + item.price * item.quantity,
     0,
@@ -24,11 +24,16 @@ function Cart({ items, onCheckout }: CartProps) {
 
       <div className="cart-items">
         {items.map((item, index) => (
-          <p className="cart-item" key={`${item.id}-${index}`}>
-            {/* Visar antal av varan och dess pris i kundvagnen. */}
-            {item.name} – Antal: {item.quantity} – Pris: {item.price} kr –
-            Radpris: {item.price * item.quantity} kr
-          </p>
+          <div className="cart-item" key={item.id}>
+            <p>{item.name}</p>
+
+            <button onClick={() => onDecrease(item.id)}>-</button>
+            <span>Antal: {item.quantity}</span>
+            <button onClick={() => onIncrease(item.id)} disabled={item.quantity >= item.stock}>+</button>
+
+            <p>Pris: {item.price} kr</p>
+            <p>Radpris: {item.price * item.quantity}</p>
+          </div>
         ))}
       </div>
       <p>Totalt: {totalPrice} kr</p>
