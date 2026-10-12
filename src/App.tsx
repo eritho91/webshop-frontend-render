@@ -11,8 +11,98 @@ import ProtectedRoute, {
 } from "./components/ProtectedRoute";
 import CreateProductPage from "./pages/CreateProductPage";
 import PageNotFound from "./pages/PageNotFound";
+import { useEffect, useState } from "react";
+import type { CartItem, Product } from "./types/product-cart";
+import { createOrder } from "./service/orderService";
 
 function App() {
+  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+    const savedCart = sessionStorage.getItem("cart");
+    return savedCart ? JSON.parse(savedCart) : [];
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem("cart", JSON.stringify(cartItems));
+  }, [cartItems]);
+
+  function addToCart(product: Product) {
+    const existingItem = cartItems.find((item) => item.id === product.id);
+    if (product.stock <= 0) {
+      return;
+    }
+
+    if (existingItem) {
+      if (existingItem.quantity >= product.stock) {
+        return;
+      }
+      setCartItems((currentItems) =>
+        currentItems.map((item) =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item,
+        ),
+      );
+      return;
+    }
+    const cartItem: CartItem = {
+      ...product, //kopierar all produktinfo
+      quantity: 1,
+    };
+
+    //tar alla produkter som finns i kundvagn och lägger till den nya sist
+    setCartItems((currentItems) => [...currentItems, cartItem]);
+  }
+
+  function increaseQuantity(productId: number) {
+    setCartItems((currentItems) =>
+      currentItems.map((item) =>
+        item.id === productId && item.quantity < item.stock
+          ? { ...item, quantity: item.quantity + 1 }
+          : item,
+      ),
+    );
+  }
+
+  function decreaseQuantity(productId: number) {
+    setCartItems((currentItems) =>
+      currentItems
+        .map((item) =>
+          item.id === productId
+            ? { ...item, quantity: item.quantity - 1 }
+            : item,
+        )
+        .filter((item) => item.quantity > 0),
+    );
+  }
+
+  const handleCheckout = async () => {
+    if (cartItems.length === 0) {
+      alert("Kundvagnen är tom.");
+      return;
+    }
+
+    // Skapa ny order
+    const orderRequest = {
+      items: cartItems.map((item) => ({
+        productId: item.id,
+        quantity: item.quantity,
+      })),
+    };
+
+    // Skickar beställningen till backend
+    try {
+      await createOrder(orderRequest);
+
+      // Tömmer kundvagnen om beställningen lyckas
+      setCartItems([]);
+      sessionStorage.removeItem("cart");
+
+      alert("Ordern har skapats.");
+    } catch {
+      alert("Något gick fel när ordern skulle skapas.");
+    }
+  };
+
   return (
     //behållare för appens sidor med route path till login
     <>
@@ -23,7 +113,18 @@ function App() {
 
         <Route element={<ProtectedRoute />}>
           <Route path="/welcome" element={<WelcomePage />} />
-          <Route path="/products" element={<ProductPage />} />
+          <Route
+            path="/products"
+            element={
+              <ProductPage
+                cartItems={cartItems}
+                onAddToCart={addToCart}
+                onIncrease={increaseQuantity}
+                onDecrease={decreaseQuantity}
+                onCheckout={handleCheckout}
+              />
+            }
+          />
           <Route element={<ProtectedAdminRoute />}>
             <Route path="/Admin" element={<AdminProductPage />} />
             <Route path="/create-product" element={<CreateProductPage />} />

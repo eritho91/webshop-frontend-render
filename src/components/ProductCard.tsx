@@ -7,8 +7,10 @@ type ProductCardProps = {
 };
 
 function ProductCard({ product, onAdd }: ProductCardProps) {
+  const outOfStock = product.stock === 0;
+
   return (
-    <article className="product-card">
+    <article className={`product-card ${outOfStock ? "sold-out" : ""}`}>
       <img src={product.imageUrl} alt={product.name} className="product-image" />
 
       <div className="product-info">
@@ -22,8 +24,8 @@ function ProductCard({ product, onAdd }: ProductCardProps) {
       </div>
 
       {onAdd && (
-        <button className="primary-button" onClick={() => onAdd(product)}>
-          Lägg i kundvagn
+        <button className="primary-button" onClick={() => onAdd(product)} disabled={outOfStock}>
+          {outOfStock ? "Slutsåld" : "Lägg i kundvagn"}
         </button>
       )}
     </article>
