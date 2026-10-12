@@ -23,13 +23,18 @@ function Cart({ items, onIncrease, onDecrease, onCheckout }: CartProps) {
       {items.length === 0 && <p>Din kundvagn är tom.</p>}
 
       <div className="cart-items">
-        {items.map((item, index) => (
+        {items.map((item) => (
           <div className="cart-item" key={item.id}>
             <p>{item.name}</p>
 
             <button onClick={() => onDecrease(item.id)}>-</button>
             <span>Antal: {item.quantity}</span>
-            <button onClick={() => onIncrease(item.id)} disabled={item.quantity >= item.stock}>+</button>
+            <button
+              onClick={() => onIncrease(item.id)}
+              disabled={item.quantity >= item.stock}
+            >
+              +
+            </button>
 
             <p>Pris: {item.price} kr</p>
             <p>Radpris: {item.price * item.quantity}</p>
