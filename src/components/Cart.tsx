@@ -18,7 +18,7 @@ function Cart({ items, onIncrease, onDecrease, onCheckout }: CartProps) {
   );
   return (
     <section className="cart">
-      <h2>Kundvagn</h2>
+      <h2>I kundvagnen</h2>
       {/* Om kundvagnen är tom visas '0'*/}
       {items.length === 0 && <p>Din kundvagn är tom.</p>}
 
@@ -26,23 +26,30 @@ function Cart({ items, onIncrease, onDecrease, onCheckout }: CartProps) {
         {items.map((item) => (
           <div className="cart-item" key={item.id}>
             <p>{item.name}</p>
+            <p>{item.price} kr</p>
+            <p>Radpris: {item.price * item.quantity} kr</p>
 
-            <button onClick={() => onDecrease(item.id)}>-</button>
-            <span>Antal: {item.quantity}</span>
             <button
+              className="quantity-button"
+              onClick={() => onDecrease(item.id)}
+            >
+              -
+            </button>
+            <span> {item.quantity} </span>
+            <button
+              className="quantity-button"
               onClick={() => onIncrease(item.id)}
               disabled={item.quantity >= item.stock}
             >
               +
             </button>
-
-            <p>Pris: {item.price} kr</p>
-            <p>Radpris: {item.price * item.quantity}</p>
           </div>
         ))}
       </div>
       <p>Totalt: {totalPrice} kr</p>
-      <button onClick={onCheckout}>Skicka beställning</button>
+      <button className="primary-button" onClick={onCheckout}>
+        Skicka beställning
+      </button>
     </section>
   );
 }
