@@ -70,6 +70,9 @@ function ProductPage({
     loadProducts();
   }, []);
 
+  //!showCart byter till det motsatta, så om cart är false så ska den bli true on click
+  //showCart ? = om cart visas skrivs dölj annars visa kundvagn
+  //showCart && = Om showcart är true rendera cart och produkterna från cart
   return (
     <main className="product-page">
       <div className="product-page-header">
@@ -87,12 +90,14 @@ function ProductPage({
       </div>
 
       <input
+        id="product-search"
         type="search"
         placeholder="Sök produkter.."
         value={searchTerm}
         onChange={(event) => setSearchTerm(event.target.value)}
       />
       <select
+        id="product-category"
         className="category-select"
         value={selectedCategory}
         onChange={(event) => setSelectedCategory(event.target.value)}
