@@ -626,3 +626,41 @@ button {
   outline: none;
   margin-bottom: 12px;
 }
+
+.home-page {
+  padding: 60px 24px;
+  text-align: center;
+}
+.home-header {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 48px;
+}
+
+.home-page-links {
+  display: flex;
+  text-align: center;
+  font-size: 16px;
+  gap: 40px;
+}
+
+.home-page-links a {
+  color: #171512;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.home-page-links a:hover {
+  color: #c66210;
+}
+.home-page-about {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 40px 0;
+}
+.home-page-about p {
+  max-width: 650px;
+  margin: 0 auto;
+  line-height: 1.6;
+  margin-bottom: 40px;
+}
