@@ -21,9 +21,22 @@ function App() {
     return savedCart ? JSON.parse(savedCart) : [];
   });
 
+  //för att hålla reda på vilken text som visas i notis vid tillagd vara
+  const [cartNotification, setCartNotification] = useState<string | null>(null);
+
   useEffect(() => {
     sessionStorage.setItem("cart", JSON.stringify(cartItems));
   }, [cartItems]);
+
+  useEffect(() => {
+    if (!cartNotification) {
+      return;
+    }
+    const timer = setTimeout(() => {
+      setCartNotification(null);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [cartNotification]);
 
   function addToCart(product: Product) {
     const existingItem = cartItems.find((item) => item.id === product.id);
@@ -42,15 +55,15 @@ function App() {
             : item,
         ),
       );
-      return;
+    } else {
+      const cartItem: CartItem = {
+        ...product, //kopierar all produktinfo
+        quantity: 1,
+      };
+      //tar alla produkter som finns i kundvagn och lägger till den nya sist
+      setCartItems((currentItems) => [...currentItems, cartItem]);
     }
-    const cartItem: CartItem = {
-      ...product, //kopierar all produktinfo
-      quantity: 1,
-    };
-
-    //tar alla produkter som finns i kundvagn och lägger till den nya sist
-    setCartItems((currentItems) => [...currentItems, cartItem]);
+    setCartNotification(`${product.name} har lagts till i kundvagnen`);
   }
 
   function increaseQuantity(productId: number) {
@@ -106,7 +119,17 @@ function App() {
   return (
     //behållare för appens sidor med route path till login
     <>
-      <Header />
+      <Header
+        cartItems={cartItems}
+        onIncrease={increaseQuantity}
+        onDecrease={decreaseQuantity}
+        onCheckout={handleCheckout}
+      />
+      {cartNotification && (
+        <div className="cart-notification" role="status">
+          {cartNotification}
+        </div>
+      )}
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -115,15 +138,7 @@ function App() {
           <Route path="/welcome" element={<WelcomePage />} />
           <Route
             path="/products"
-            element={
-              <ProductPage
-                cartItems={cartItems}
-                onAddToCart={addToCart}
-                onIncrease={increaseQuantity}
-                onDecrease={decreaseQuantity}
-                onCheckout={handleCheckout}
-              />
-            }
+            element={<ProductPage onAddToCart={addToCart} />}
           />
           <Route element={<ProtectedAdminRoute />}>
             <Route path="/Admin" element={<AdminProductPage />} />

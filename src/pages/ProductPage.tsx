@@ -1,35 +1,21 @@
 import { useEffect, useState } from "react";
-import type { CartItem, Product } from "../types/product-cart";
+import type { Product } from "../types/product-cart";
 import { getProducts } from "../service/productService";
 import ProductCard from "../components/ProductCard";
-import Cart from "../components/Cart";
 import { categories } from "../types/category";
 
 //beskriver värden/funktioner som förväntas från App
 type ProductPageProps = {
-  cartItems: CartItem[];
   onAddToCart: (product: Product) => void;
-  onIncrease: (productId: number) => void;
-  onDecrease: (productId: number) => void;
-  onCheckout: () => Promise<void>; //promise void då handlecheckout är asynkron
 };
 
 //komponenten tar emot props
-function ProductPage({
-  cartItems,
-  onAddToCart,
-  onIncrease,
-  onDecrease,
-  onCheckout,
-}: ProductPageProps) {
+function ProductPage({ onAddToCart }: ProductPageProps) {
   console.log("ProductPage körs");
 
   const [products, setProducts] = useState<Product[]>([]);
   const [error, setError] = useState<string | null>(null);
   //innehåller vagnens produkter + för att ändra. innehåller en lista av items
-
-  //bestämmer om kundvagn visas
-  const [showCart, setShowCart] = useState(false);
 
   //Sätter default category till ALL, så att alla produkter visas vid första renderingen
   const [selectedCategory, setSelectedCategory] = useState("ALL");
@@ -94,22 +80,17 @@ function ProductPage({
         <div>
           <h1>Produkter</h1>
         </div>
-
-        <button
-          className="primary-button"
-          onClick={() => setShowCart(!showCart)}
-        >
-          {showCart ? "Dölj kundvagn" : "Visa kundvagn"}
-        </button>
       </div>
 
       <input
+        id="product-search"
         type="search"
         placeholder="Sök produkter.."
         value={searchTerm}
         onChange={(event) => setSearchTerm(event.target.value)}
       />
       <select
+        id="product-category"
         className="category-select"
         value={selectedCategory}
         onChange={(event) => setSelectedCategory(event.target.value)}
@@ -120,16 +101,6 @@ function ProductPage({
           </option>
         ))}
       </select>
-
-      {/* Funktionerna skickas till Cart som props */}
-      {showCart && (
-        <Cart
-          items={cartItems}
-          onIncrease={onIncrease}
-          onDecrease={onDecrease}
-          onCheckout={onCheckout}
-        />
-      )}
 
       {renderFilteredProducts()}
     </main>
