@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest";
 import ProductCard from "../components/ProductCard"
 import type { Product } from "../types/product-cart";
+import { MemoryRouter } from "react-router-dom";
 
 
 describe("ProductCard", () => {
@@ -19,10 +20,13 @@ describe("ProductCard", () => {
     it("visar produktinformation", () => {
         const mockAdd = vi.fn();
 
-    render(<ProductCard 
+    render(
+        <MemoryRouter>
+        <ProductCard 
             product={product}
             onAdd={mockAdd}
         />
+    </MemoryRouter>
     );
 
     expect(screen.getByText("Testprodukt")).toBeInTheDocument();
@@ -37,10 +41,12 @@ describe("ProductCard", () => {
     const mockAdd = vi.fn();
 
     render(
-        <ProductCard
-        product={product}
-        onAdd={mockAdd}
-        />
+        <MemoryRouter>
+            <ProductCard
+                product={product}
+                onAdd={mockAdd}
+            />
+        </MemoryRouter>
     );
 
     await user.click(
