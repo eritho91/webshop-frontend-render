@@ -1,74 +1,79 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import type { Product } from "../types/product-cart";
+import type { CartItem, Product } from "../types/product-cart";
 import { getProductById } from "../service/productService";
 
 type ProductDetailPageProps = {
-    onAddToCart: (product: Product) => void;
+  cartItems: CartItem[];
+  onAddToCart: (product: Product) => void;
+  onIncreaseQuantity: (productId: number) => void;
+  onDecreaseQuantity: (productId: number) => void;
+  onCheckout: () => Promise<void>;
 };
 
-function ProductDetailPage({ 
-    onAddToCart,
+function ProductDetailPage({
+  onAddToCart,
 }: ProductDetailPageProps) {
-    const { id } = useParams();
-    const [product, setProduct] = useState<Product | null>(null);
-    const [error, setError] = useState<string | null>(null);
+  const { id } = useParams();
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        async function loadProduct() {
-            if (!id) {
-                setError("Produkt-ID saknas");
-                setLoading(false);
-                return;
-            }
+  useEffect(() => {
+    async function loadProduct() {
+      if (!id) {
+        setError("Produkt-ID saknas");
+        setLoading(false);
+        return;
+      }
 
-            try {
-                const data = await getProductById(Number(id));
-                setProduct(data);
-            } catch (error: any) {
-                setError(error.message);
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        loadProduct();
-    }, [id]);
-
-    if (loading) {
-        return <p>Laddar produkt...</p>;
+      try {
+        const data = await getProductById(Number(id));
+        setProduct(data);
+      } catch (error: any) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
     }
 
-    if (error) {
-        return <p>{error}</p>;
-    }
+    loadProduct();
+  }, [id]);
 
-    if (!product) {
-        return <p>Produkten hittades inte.</p>;
-    }
+  if (loading) {
+    return <p>Laddar produkt...</p>;
+  }
 
-    return (
-        <main className="product-detail-page">
-            <h1>{product.name}</h1>
-            <img
-                src={product.imageUrl}
-                alt={product.name}
-            />
-            <p>{product.description}</p>
-            <p>Price: ${product.price}</p>
-            <p>I lager: {product.stock}</p>
+  if (error) {
+    return <p>{error}</p>;
+  }
 
-            <button 
-                type="button"
-                onClick={() => onAddToCart(product)}
-                disabled={product.stock === 0}
-            >
-                {product.stock === 0 
-                ? "Slut i lager" 
-                : "Lägg i kundvagn"}
-            </button>
-        </main>
-    );
+  if (!product) {
+    return <p>Produkten hittades inte.</p>;
+  }
+
+  return (
+    <main className="product-detail-page">
+      <h1>{product.name}</h1>
+      <img
+        src={product.imageUrl}
+        alt={product.name}
+        className="product-image"
+      />
+      <p>{product.description}</p>
+      <p>Price: ${product.price} kr</p>
+      <p>I lager: {product.stock}</p>
+
+      <button
+        type="button"
+        onClick={() => onAddToCart(product)}
+        disabled={product.stock === 0}
+      >
+        {product.stock === 0 ? "Slut i lager" : "Lägg i kundvagn"}
+      </button>
+
+    </main>
+  );
 }
 
 export default ProductDetailPage;

@@ -1,4 +1,5 @@
 import type { Product } from "../types/product-cart";
+import { Link } from "react-router-dom";
 
 type ProductCardProps = {
   product: Product;
@@ -9,6 +10,9 @@ type ProductCardProps = {
 function ProductCard({ product, onAdd }: ProductCardProps) {
   return (
     <article className="product-card">
+      <Link to={`/products/${product.id}`}
+      className="product-card-link">
+
       <img src={product.imageUrl} alt={product.name} className="product-image" />
 
       <div className="product-info">
@@ -20,6 +24,7 @@ function ProductCard({ product, onAdd }: ProductCardProps) {
 
         <strong>{product.price} kr</strong>
       </div>
+      </Link>
 
       {onAdd && (
         <button className="primary-button" onClick={() => onAdd(product)}>
