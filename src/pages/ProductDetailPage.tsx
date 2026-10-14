@@ -21,6 +21,10 @@ function ProductDetailPage({
 
   useEffect(() => {
     async function loadProduct() {
+        setLoading(true);
+        setError(null);
+        setProduct(null);
+
       if (!id) {
         setError("Produkt-ID saknas");
         setLoading(false);
