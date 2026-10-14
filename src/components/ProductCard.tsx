@@ -11,7 +11,7 @@ function ProductCard({ product, onAdd }: ProductCardProps) {
   const outOfStock = product.stock === 0;
 
   return (
-    <article className="product-card">
+    <article className={`product-card ${outOfStock ? "sold-out" : ""}`}>
       <Link to={`/products/${product.id}`}
       className="product-card-link">
 
