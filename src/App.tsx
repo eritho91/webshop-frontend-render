@@ -2,6 +2,7 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ProductPage from "./pages/ProductPage";
+import ProductDetailPage from "./pages/ProductDetailPage";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import WelcomePage from "./pages/WelcomePage";
@@ -143,15 +144,38 @@ function App() {
 
         <Route element={<ProtectedRoute />}>
           <Route path="/welcome" element={<WelcomePage />} />
+
           <Route
             path="/products"
-            element={<ProductPage onAddToCart={addToCart} />}
+            element={
+              <ProductPage
+                cartItems={cartItems}
+                onAddToCart={addToCart}
+                onIncreaseQuantity={increaseQuantity}
+                onDecreaseQuantity={decreaseQuantity}
+                onCheckout={handleCheckout}
+              />
+            }
           />
+
+          <Route
+            path="/products/:id"
+            element={<ProductDetailPage 
+              cartItems={cartItems}
+              onAddToCart={addToCart}
+              onIncreaseQuantity={increaseQuantity}
+              onDecreaseQuantity={decreaseQuantity}
+              onCheckout={handleCheckout} 
+            />
+            }
+          />
+
           <Route element={<ProtectedAdminRoute />}>
             <Route path="/Admin" element={<AdminProductPage />} />
             <Route path="/create-product" element={<CreateProductPage />} />
           </Route>
         </Route>
+
         <Route path="*" element={<PageNotFound />} />
       </Routes>
       <Footer />

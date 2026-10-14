@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import ProductForm from "../components/ProductForm";
-import { CreateProduct } from "../service/productService";
+import { createProduct } from "../service/productService";
 import { CreateProductData } from "../types/product-cart";
 
 export default function CreateProductPage() {
@@ -9,7 +9,7 @@ export default function CreateProductPage() {
   const HandleSubmit = async (product: CreateProductData) => {
 
     try{
-        await CreateProduct(product);
+        await createProduct(product);
         navigate("/admin");
 
     } catch (error: any) {

@@ -1,21 +1,29 @@
 import { useEffect, useState } from "react";
-import type { Product } from "../types/product-cart";
+import type { CartItem, Product } from "../types/product-cart";
 import { getProducts } from "../service/productService";
 import ProductCard from "../components/ProductCard";
+import Cart from "../components/Cart";
 import { categories } from "../types/category";
 
-//beskriver värden/funktioner som förväntas från App
 type ProductPageProps = {
+  cartItems: CartItem[];
   onAddToCart: (product: Product) => void;
+  onIncreaseQuantity: (productId: number) => void;
+  onDecreaseQuantity: (productId: number) => void;
+  onCheckout: () => Promise<void>;
 };
 
-//komponenten tar emot props
-function ProductPage({ onAddToCart }: ProductPageProps) {
-  console.log("ProductPage körs");
-
+function ProductPage({
+  cartItems,
+  onAddToCart,
+  onIncreaseQuantity,
+  onDecreaseQuantity,
+  onCheckout,
+}: ProductPageProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [error, setError] = useState<string | null>(null);
-  //innehåller vagnens produkter + för att ändra. innehåller en lista av items
+  const [loading, setLoading] = useState(true);
+  const [showCart, setShowCart] = useState(false);
 
   //Sätter default category till ALL, så att alla produkter visas vid första renderingen
   const [selectedCategory, setSelectedCategory] = useState("ALL");
@@ -42,34 +50,25 @@ function ProductPage({ onAddToCart }: ProductPageProps) {
     return matchCategory && matchSearch;
   });
 
+  //Hämtar produkter när sidan visas
   useEffect(() => {
     async function loadProducts() {
       try {
         const data = await getProducts();
         setProducts(data);
-      } catch (error: any) {
-        setError(error.message);
+      } catch (error: unknown) {
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Kunde inte hämta produkter.",
+        );
+      } finally {
+        setLoading(false);
       }
     }
 
     loadProducts();
   }, []);
-
-  function renderFilteredProducts() {
-    if (error) {
-      return null;
-    }
-    if (filteredProducts.length === 0) {
-      return <p>Inga produkter matchade din sökning</p>;
-    }
-    return (
-      <div className="product-grid">
-        {filteredProducts.map((product) => (
-          <ProductCard key={product.id} product={product} onAdd={onAddToCart} />
-        ))}
-      </div>
-    );
-  }
 
   //!showCart byter till det motsatta, så om cart är false så ska den bli true on click
   //showCart ? = om cart visas skrivs dölj annars visa kundvagn
@@ -80,6 +79,14 @@ function ProductPage({ onAddToCart }: ProductPageProps) {
         <div>
           <h1>Produkter</h1>
         </div>
+
+        <button
+        type="button"
+          className="primary-button"
+          onClick={() => setShowCart(!showCart)}
+        >
+          {showCart ? "Dölj kundvagn" : "Visa kundvagn"}
+        </button>
       </div>
 
       <input
@@ -102,7 +109,35 @@ function ProductPage({ onAddToCart }: ProductPageProps) {
         ))}
       </select>
 
-      {renderFilteredProducts()}
+      {/* Funktionerna skickas till Cart som props */}
+      {showCart && (
+        <Cart
+          items={cartItems}
+          onIncrease={onIncreaseQuantity}
+          onDecrease={onDecreaseQuantity}
+          onCheckout={onCheckout}
+        />
+      )}
+
+      {loading && <p>Laddar produkter...</p>}
+
+      {!loading && error && <p>{error}</p>}
+
+      {!loading && !error && filteredProducts.length === 0 && (
+        <p>Inga produkter matchade din sökning.</p>
+      )}
+
+      {!loading && !error && filteredProducts.length > 0 && (
+        <div className="product-grid">
+          {filteredProducts.map((product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              onAdd={onAddToCart}
+            />
+          ))}
+        </div>
+      )}
     </main>
   );
 }

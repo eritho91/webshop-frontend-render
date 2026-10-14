@@ -1,4 +1,4 @@
-import type { Product,  } from "../types/product-cart";
+import type { Product  } from "../types/product-cart";
 import type { CreateProductData } from "../types/product-cart";
 
 
@@ -15,7 +15,7 @@ import type { CreateProductData } from "../types/product-cart";
 
 export async function getProducts(): Promise<Product[]> {
   
-  const response = await fetch(`http://localhost:8084/products`, {
+  const response = await fetch("http://localhost:8084/products", {
     method: "GET",
     headers: getAuthHeaders(),
   });
@@ -24,7 +24,7 @@ export async function getProducts(): Promise<Product[]> {
     if(response.status === 401){
       throw new Error("Error 401: kunde inte verifiera användaren");
     }
-    throw new Error("Kunde inte hämta producter. Felkod:${response.status}");
+    throw new Error(`Kunde inte hämta produkter. Felkod: ${response.status}`);
   }
 
   const products: Product[] = await response.json();
@@ -32,10 +32,35 @@ export async function getProducts(): Promise<Product[]> {
   return products;
 }
 
+export async function getProductById(id: number): Promise<Product> {
+  const response = await fetch(`http://localhost:8084/products/${id}`, {
+    method: "GET",
+    headers: getAuthHeaders(),
+  });
 
-export async function CreateProduct(productData: CreateProductData): Promise<Product> {
+  if(!response.ok){
 
-   const response = await fetch(`http://localhost:8084/products`, {
+    if(response.status === 401){
+      throw new Error("Error 401: kunde inte verifiera användaren");
+    }
+
+    if(response.status === 404){
+      throw new Error("Error 404: Produkten hittades inte");
+    }
+
+    throw new Error(`Kunde inte hämta produkt. Felkod: ${response.status}`);
+  }
+
+  const product: Product = await response.json();
+
+  return product;
+}
+
+
+
+export async function createProduct(productData: CreateProductData): Promise<Product> {
+
+   const response = await fetch("http://localhost:8084/products", {
     method: "POST",
     headers: getAuthHeaders(),
     body: JSON.stringify(productData),
@@ -45,10 +70,10 @@ export async function CreateProduct(productData: CreateProductData): Promise<Pro
     if(response.status === 401){
       throw new Error("Error 401: kunde inte verifiera användaren");
     }
-    if(response.status ===403) {
+    if(response.status === 403) {
       throw new Error("Error 403: Du saknar ADMIN-behörighet för att skapa produkter");
     }
-    throw new Error("Kunde inte hämta producter. Felkod:${response.status}");
+    throw new Error(`Kunde inte skapa produkt. Felkod: ${response.status}`);
   }
 
   const newProduct: Product = await response.json();
