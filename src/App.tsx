@@ -122,16 +122,16 @@ function App() {
 
   return (
     //behållare för appens sidor med route path till login
-     <>
-    {/*om path bara är "/" (dvs startsidan) visas inte headern */} 
-     {pathname !== "/" && (
-      <Header
-        cartItems={cartItems}
-        onIncrease={increaseQuantity}
-        onDecrease={decreaseQuantity}
-        onCheckout={handleCheckout}
-      />
-       )}
+    <>
+      {/*om path bara är "/" (dvs startsidan) visas inte headern */}
+      {pathname !== "/" && (
+        <Header
+          cartItems={cartItems}
+          onIncrease={increaseQuantity}
+          onDecrease={decreaseQuantity}
+          onCheckout={handleCheckout}
+        />
+      )}
       {cartNotification && (
         <div className="cart-notification" role="status">
           {cartNotification}
@@ -140,33 +140,26 @@ function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-       <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<HomePage />} />
 
         <Route element={<ProtectedRoute />}>
           <Route path="/welcome" element={<WelcomePage />} />
 
           <Route
             path="/products"
+            element={<ProductPage onAddToCart={addToCart} />}
+          />
+
+          <Route
+            path="/products/:id"
             element={
-              <ProductPage
+              <ProductDetailPage
                 cartItems={cartItems}
                 onAddToCart={addToCart}
                 onIncreaseQuantity={increaseQuantity}
                 onDecreaseQuantity={decreaseQuantity}
                 onCheckout={handleCheckout}
               />
-            }
-          />
-
-          <Route
-            path="/products/:id"
-            element={<ProductDetailPage 
-              cartItems={cartItems}
-              onAddToCart={addToCart}
-              onIncreaseQuantity={increaseQuantity}
-              onDecreaseQuantity={decreaseQuantity}
-              onCheckout={handleCheckout} 
-            />
             }
           />
 

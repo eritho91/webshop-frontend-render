@@ -1,29 +1,15 @@
 import { useEffect, useState } from "react";
-import type { CartItem, Product } from "../types/product-cart";
+import type { Product } from "../types/product-cart";
 import { getProducts } from "../service/productService";
 import ProductCard from "../components/ProductCard";
-import Cart from "../components/Cart";
 import { categories } from "../types/category";
 
-type ProductPageProps = {
-  cartItems: CartItem[];
-  onAddToCart: (product: Product) => void;
-  onIncreaseQuantity: (productId: number) => void;
-  onDecreaseQuantity: (productId: number) => void;
-  onCheckout: () => Promise<void>;
-};
+type ProductPageProps = { onAddToCart: (product: Product) => void };
 
-function ProductPage({
-  cartItems,
-  onAddToCart,
-  onIncreaseQuantity,
-  onDecreaseQuantity,
-  onCheckout,
-}: ProductPageProps) {
+function ProductPage({ onAddToCart }: ProductPageProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showCart, setShowCart] = useState(false);
 
   //Sätter default category till ALL, så att alla produkter visas vid första renderingen
   const [selectedCategory, setSelectedCategory] = useState("ALL");
@@ -79,14 +65,6 @@ function ProductPage({
         <div>
           <h1>Produkter</h1>
         </div>
-
-        <button
-        type="button"
-          className="primary-button"
-          onClick={() => setShowCart(!showCart)}
-        >
-          {showCart ? "Dölj kundvagn" : "Visa kundvagn"}
-        </button>
       </div>
 
       <input
@@ -108,16 +86,6 @@ function ProductPage({
           </option>
         ))}
       </select>
-
-      {/* Funktionerna skickas till Cart som props */}
-      {showCart && (
-        <Cart
-          items={cartItems}
-          onIncrease={onIncreaseQuantity}
-          onDecrease={onDecreaseQuantity}
-          onCheckout={onCheckout}
-        />
-      )}
 
       {loading && <p>Laddar produkter...</p>}
 
