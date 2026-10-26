@@ -23,14 +23,34 @@ function Header({
 }: HeaderProps) {
   const navigate = useNavigate();
   const currentUser = getCurrentUser();
-  const isAdmin = currentUser?.roles.includes("ROLE_ADMIN");
-  const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
-  const [mobileMenu, setMobileMenu] = useState(false);
+  const authenticated = isAuthenticated();
+  const isAdmin = currentUser?.roles.includes("ROLE_ADMIN") ?? false;
 
-  function logoutHandler() {
-    logout();
-    navigate("/login");
+  const cartCount = cartItems.reduce(
+    (total, item) => total + item.quantity,
+    0
+  );
+
+  const [mobileMenu, setMobileMenu] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  async function logoutHandler() {
+    if (loggingOut) return;
+
+    setLoggingOut(true);
+
+    try {
+      await logout();
+      setMobileMenu(false);
+      navigate("/login", { replace: true });
+    } catch (error) {
+      console.error("Utloggningen misslyckades:", error);
+      window.alert("Kunde inte logga ut.");
+    } finally {
+      setLoggingOut(false);
+    }
   }
+
   return (
     <header className="header">
       <div className="logo">E.J.E.A</div>
@@ -40,17 +60,26 @@ function Header({
       </nav>
 
       <div className="header-actions">
-        {isAuthenticated() && (
+        {authenticated && (
           <div className="user-menu">
-            <span className="user-name">{currentUser?.username}</span>
+            <span className="user-name">
+              {currentUser?.username}
+            </span>
 
             <div className="user-dropdown-menu">
-              <button onClick={logoutHandler}>Logga ut</button>
+              <button
+                type="button"
+                onClick={logoutHandler}
+                disabled={loggingOut}
+              >
+                Logga ut
+              </button>
 
               {isAdmin && <Link to="/admin">Admin</Link>}
             </div>
           </div>
         )}
+
         <div className="cart-window">
           <button type="button" className="cart-button">
             Kundvagn [{cartCount}]
@@ -78,21 +107,25 @@ function Header({
 
       {mobileMenu && (
         <nav id="mobile-nav" className="mobile-nav">
-          {isAuthenticated() && (
+          {authenticated && (
             <>
-              <span className="mobile-user-name">{currentUser?.username}</span>
+              <span className="mobile-user-name">
+                {currentUser?.username}
+              </span>
+
               {isAdmin && (
-                <Link to="/admin" onClick={() => setMobileMenu(false)}>
+                <Link
+                  to="/admin"
+                  onClick={() => setMobileMenu(false)}
+                >
                   Admin
                 </Link>
               )}
 
               <button
                 type="button"
-                onClick={() => {
-                  setMobileMenu(false);
-                  logoutHandler();
-                }}
+                onClick={logoutHandler}
+                disabled={loggingOut}
               >
                 Logga ut
               </button>
